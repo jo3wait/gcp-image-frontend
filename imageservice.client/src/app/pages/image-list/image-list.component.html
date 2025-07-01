@@ -1,0 +1,44 @@
+<h2>Image List</h2>
+
+<!-- 歡迎列 -->
+<div style="text-align:right; margin-bottom:8px">
+  Hi, {{ email }} |
+  <a href="#" (click)="logout()">Logout</a>
+</div>
+
+<!-- 上傳區 -->
+<label>
+  <input type="file" (change)="selectFile($event)" />
+</label>
+<button (click)="upload()" [disabled]="!file">Upload</button>
+<span style="margin-left:1rem;color:#888">
+  *檔案大小 ≤ 5 MB，目標壓縮固定 500 KB
+</span>
+
+<p style="color:green" *ngIf="msg">{{ msg }}</p>
+<p style="color:red" *ngIf="err">{{ err }}</p>
+
+<!-- 列表 -->
+<table border="1" cellpadding="4" style="margin-top:10px;width:100%">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Size</th>
+      <th>Uploaded</th>
+      <th>Status</th>
+      <th>Download</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let r of rows">
+      <td>{{ r.fileName }}</td>
+      <td>{{ r.size }}</td>
+      <td>{{ r.uploadDate | date:'yyyy-MM-dd HH:mm' }}</td>
+      <td>{{ r.status }}</td>
+      <td>
+        <a *ngIf="r.status === 'done'; else dash" [href]="r.thumbUrl" target="_blank">Link</a>
+        <ng-template #dash>—</ng-template>
+      </td>
+    </tr>
+  </tbody>
+</table>

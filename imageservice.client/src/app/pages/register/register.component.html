@@ -1,0 +1,10 @@
+<h2>Register</h2>
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <!-- 與 login 相同 -->
+  <label>Email:<br /><input formControlName="email" /></label><br />
+  <label>Password:<br /><input type="password" formControlName="password" /></label><br /><br />
+  <button type="submit">Register</button>
+  <a routerLink="/login">Back to Login</a>
+</form>
+<p style="color:green" *ngIf="msg">{{ msg }}</p>
+<p style="color:red" *ngIf="error">{{ error }}</p>
