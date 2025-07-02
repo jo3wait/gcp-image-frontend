@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, Observable, of } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AuthResponse {
   success: boolean;
@@ -11,7 +12,7 @@ export interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly api = '/api/auth';
+  private readonly api = `${environment.authApi}/api/auth`;
 
   constructor(private http: HttpClient, private router: Router) { }
 
