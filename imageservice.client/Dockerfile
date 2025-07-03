@@ -1,27 +1,29 @@
-# 1. Build 階段：Node.js 18
+# ─── 1. Build 階段：Node.js 18 ───────────────────────
 FROM node:18-slim AS build
 WORKDIR /src
 
-# 安裝所有依賴（包含 devDependencies）
+# 安裝所有依賴（含 devDependencies，以確保 ng build 可用）
 COPY package*.json ./
 RUN npm ci
 
-# 複製原始碼並打包
 COPY . .
 RUN npm run build -- --configuration production --output-path=/dist
 
-# 2. Runtime 階段：Nginx
+# ─── 2. Runtime 階段：Nginx ─────────────────────────
 FROM nginx:stable-alpine
+# 宣告 Cloud Run 預設使用的監聽埠
 ENV PORT 8080
 
-# copy build 好的靜態檔
+# 把打包好的前端檔案放到 Nginx root
 COPY --from=build /dist /usr/share/nginx/html
 
-# 支援 Angular Router deep-link，並把 listen 改成 $PORT
-RUN sed -i 's|listen       80;|listen       ${PORT};|g' /etc/nginx/conf.d/default.conf \
+# 修改 Nginx 設定：
+# 1. 把 listen 80 → listen 8080
+# 2. Deep-link 路由 fallback
+RUN sed -i 's|listen       80;|listen       8080;|g' /etc/nginx/conf.d/default.conf \
  && sed -i 's|index  index.html;|try_files $uri $uri/ /index.html;|g' /etc/nginx/conf.d/default.conf
 
 EXPOSE 8080
 
-# 啟動前注入環境變數，再啟動 nginx
-CMD ["sh", "-c", "envsubst '$PORT' < /etc/nginx/conf.d/default.conf > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# 直接啟動 Nginx
+CMD ["nginx", "-g", "daemon off;"]
