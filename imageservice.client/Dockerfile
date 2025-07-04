@@ -18,7 +18,7 @@ RUN rm -rf /usr/share/nginx/html/*
 
 # 這裡抓 angular.json 裡預設的 dist 資料夾
 COPY --from=build /src/dist/imageservice.client/browser/ /usr/share/nginx/html/
-RUN ls -R /usr/share/nginx/html
+RUN ls -R /usr/share/nginx/html 
 
 # 2.3 修改 listen port 與 deep‑link 支援
 RUN sed -i 's|listen       80;|listen       8080;|g' /etc/nginx/conf.d/default.conf \
