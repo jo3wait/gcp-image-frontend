@@ -20,6 +20,18 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /src/dist/imageservice.client/browser/ /usr/share/nginx/html/
 RUN ls -R /usr/share/nginx/html 
 
+# 複製模板
+COPY src/assets/env.template.js /usr/share/nginx/html/assets/env.template.js
+
+# 啟動時，用 envsubst 把 $AUTH_URL、$IMAGE_URL 換成實際值
+RUN apk add --no-cache gettext \
+ && envsubst \
+     '\$AUTH_URL \$IMAGE_URL' \
+     < /usr/share/nginx/html/assets/env.template.js \
+     > /usr/share/nginx/html/assets/env.js \
+ && rm /usr/share/nginx/html/assets/env.template.js \
+ && apk del gettext
+
 # 2.3 修改 listen port 與 deep‑link 支援
 RUN sed -i 's|listen       80;|listen       8080;|g' /etc/nginx/conf.d/default.conf \
  && sed -i 's|index  index.html;|try_files \$uri \$uri/ /index.html;|g' /etc/nginx/conf.d/default.conf

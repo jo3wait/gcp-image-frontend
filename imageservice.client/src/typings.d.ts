@@ -1,6 +1,6 @@
-/// <reference types="vite/client" />
-
-interface ImportMetaEnv {
-  readonly VITE_AUTH_URL: string;
-  readonly VITE_IMAGE_URL: string;
+interface Window {
+  __env: {
+    AUTH_URL: string;
+    IMAGE_URL: string;
+  };
 }
