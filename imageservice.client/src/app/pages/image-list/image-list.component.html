@@ -32,11 +32,11 @@
   </thead>
   <tbody>
     <tr *ngFor="let r of rows">
-      <td>{{ r.FileName }}</td>
-      <td>{{ r.OriSizeKb }}</td>
-      <td>{{ r.CompSizeKb }}</td>
-      <td>{{ r.UploadDate | date:'yyyy-MM-dd HH:mm' }}</td>
-      <td>{{ r.Status }}</td>
+      <td>{{ r.fileName }}</td>
+      <td>{{ r.oriSizeKb }}</td>
+      <td>{{ r.compSizeKb }}</td>
+      <td>{{ r.uploadDate | date:'yyyy-MM-dd HH:mm' }}</td>
+      <td>{{ r.status }}</td>
       <td>
         <a *ngIf="r.status === 'done'; else dash" [href]="r.thumbUrl" target="_blank">Link</a>
         <ng-template #dash>—</ng-template>

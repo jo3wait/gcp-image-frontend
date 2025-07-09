@@ -4,13 +4,13 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface FileDto {
-  Id: string;
-  FileName: string;
-  OriSizeKb: string;   // 上傳時 KB
-  CompSizeKb: string;  // 縮圖完成 KB；若未完成為空
-  UploadDate: string;
-  Status: string;      // processing | done | fail
-  ThumbUrl?: string;
+  id: string;
+  fileName: string;
+  oriSizeKb: string;   // 上傳時 KB
+  compSizeKb: string;  // 縮圖完成 KB；若未完成為空
+  uploadDate: string;
+  status: string;      // processing | done | fail
+  thumbUrl?: string;
 }
 
 export interface UploadResponse {
