@@ -12,7 +12,7 @@
 </label>
 <button (click)="upload()" [disabled]="!file">Upload</button>
 <span style="margin-left:1rem;color:#888">
-  *檔案大小 ≤ 5 MB，目標壓縮小於 500 KB
+  *檔案大小 ≤ 5 MB，目標壓縮約 500 KB
 </span>
 
 <p style="color:green" *ngIf="msg">{{ msg }}</p>
@@ -23,7 +23,8 @@
   <thead>
     <tr>
       <th>Name</th>
-      <th>Size</th>
+      <th>Original&nbsp;(KB)</th>
+      <th>Compressed&nbsp;(KB)</th>
       <th>Uploaded</th>
       <th>Status</th>
       <th>Download</th>
@@ -31,10 +32,11 @@
   </thead>
   <tbody>
     <tr *ngFor="let r of rows">
-      <td>{{ r.fileName }}</td>
-      <td>{{ r.size }}</td>
-      <td>{{ r.uploadDate | date:'yyyy-MM-dd HH:mm' }}</td>
-      <td>{{ r.status }}</td>
+      <td>{{ r.FileName }}</td>
+      <td>{{ r.OriSizeKb }}</td>
+      <td>{{ r.CompSizeKb }}</td>
+      <td>{{ r.UploadDate | date:'yyyy-MM-dd HH:mm' }}</td>
+      <td>{{ r.Status }}</td>
       <td>
         <a *ngIf="r.status === 'done'; else dash" [href]="r.thumbUrl" target="_blank">Link</a>
         <ng-template #dash>—</ng-template>
