@@ -34,16 +34,18 @@ RUN apk add --no-cache gettext \
  && apk del gettext
 
 # ─── listen/index 調整 & 追加 /token 代理 ───────────────────────
-RUN sed -i 's|listen       80;|listen       8080;|' /etc/nginx/conf.d/default.conf \
- && sed -i 's|index  index.html;|try_files \$uri \$uri/ /index.html;|' /etc/nginx/conf.d/default.conf \
- && printf '\n    # ===== proxy /token to metadata server =====\n' \
-    >> /etc/nginx/conf.d/default.conf \
- && printf '    location = /token {\n'                                                  \
-    '      internal;\n'                                                                    \
-    '      proxy_pass http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=$arg_audience;\n' \
-    '      proxy_set_header Metadata-Flavor "Google";\n'                                   \
-    '      add_header Cache-Control no-store;\n'                                          \
-    '    }\n'                                                                           \
+RUN sed -i \
+      -e 's|listen       80;|listen       8080 default_server;|g' \
+      -e 's|listen       443 ssl;|listen       8080 ssl;|g' \
+      -e 's|index  index.html;|try_files \$uri \$uri/ /index.html;|g' \
+    /etc/nginx/conf.d/default.conf \
+ && printf '\n    # ===== proxy /token to metadata =====\n' \
+    'location = /token {\n' \
+    '  internal;\n' \
+    '  proxy_pass http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=$arg_audience;\n' \
+    '  proxy_set_header Metadata-Flavor "Google";\n' \
+    '  add_header Cache-Control no-store;\n' \
+    '}\n' \
     >> /etc/nginx/conf.d/default.conf
 
 EXPOSE 8080
