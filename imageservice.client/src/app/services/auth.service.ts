@@ -20,15 +20,14 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) { }
 
   /** 從 Cloud Run metadata server 抓 ID token */
- private fetchIdToken(): Promise<string> {
-  // 注意：这里用 HTTPS 同源，不会触发 Mixed Content
-  const url =
-    `/token?audience=${encodeURIComponent(environment.authApi)}`;  
-  return fetch(url).then(res => {
-    if (!res.ok) throw new Error(`token fetch failed ${res.status}`);
-    return res.text();
-  });
-}
+  private fetchIdToken(): Promise<string> {
+    // audience 只傳根 URL，不含 path
+    const url = `/token?audience=${encodeURIComponent(environment.authApi)}`;
+    return fetch(url).then(res => {
+      if (!res.ok) throw new Error(`token fetch failed ${res.status}`);
+      return res.text();
+    });
+  }
 
   register(email: string, password: string): Observable<AuthResponse> {
     return from(this.fetchIdToken()).pipe(
