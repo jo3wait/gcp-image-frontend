@@ -34,25 +34,41 @@ RUN apk add --no-cache gettext \
  && apk del gettext
 
 # ─── listen/index 調整 & 追加 /token 代理 ───────────────────────
-RUN cat << 'EOF' > /etc/nginx/conf.d/default.conf
-server {
-    listen       8080 default_server;
-    server_name  _;
+RUN cat << 'EOF' > /etc/nginx/nginx.conf
+user  nginx;
+worker_processes  1;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
 
-    root   /usr/share/nginx/html;
-    index  index.html;
+events {
+    worker_connections 1024;
+}
 
-    # 靜態 + deep‑link
-    location / {
-        try_files \$uri \$uri/ /index.html;
-    }
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65;
 
-    # 精確匹配 /token → 代理到 Metadata Server
-    location = /token {
-        internal;
-        proxy_pass http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=\$arg_audience;
-        proxy_set_header Metadata-Flavor "Google";
-        add_header Cache-Control no-store;
+    server {
+        listen       8080 default_server;
+        server_name  _;
+
+        root   /usr/share/nginx/html;
+        index  index.html;
+
+        # 静态 + deep-link 支持
+        location / {
+            try_files \$uri \$uri/ /index.html;
+        }
+
+        # 精确匹配 /token → proxy metadata
+        location = /token {
+            internal;
+            proxy_pass http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=\$arg_audience;
+            proxy_set_header Metadata-Flavor "Google";
+            add_header Cache-Control no-store;
+        }
     }
 }
 EOF
