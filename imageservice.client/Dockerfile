@@ -14,11 +14,12 @@ RUN npm run build -- --configuration production
 FROM nginx:stable-alpine
 ENV PORT 8080
 
+# 刪除預設的靜態目錄
 RUN rm -rf /usr/share/nginx/html/*
 
 # 這裡抓 angular.json 裡預設的 dist 資料夾
 COPY --from=build /src/dist/imageservice.client/browser/ /usr/share/nginx/html/
-RUN ls -R /usr/share/nginx/html 
+# RUN ls -R /usr/share/nginx/html 
 
 # 複製模板
 COPY src/assets/env.template.js /usr/share/nginx/html/assets/env.template.js
@@ -32,9 +33,8 @@ RUN apk add --no-cache gettext \
  && rm /usr/share/nginx/html/assets/env.template.js \
  && apk del gettext
 
-# 2.3 修改 listen port 與 deep‑link 支援
-RUN sed -i 's|listen       80;|listen       8080;|g' /etc/nginx/conf.d/default.conf \
- && sed -i 's|index  index.html;|try_files \$uri \$uri/ /index.html;|g' /etc/nginx/conf.d/default.conf
+# 覆蓋 Nginx 預設配置，加入 /token 代理
+COPY nginx.default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 8080
 
