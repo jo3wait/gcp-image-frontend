@@ -34,19 +34,28 @@ RUN apk add --no-cache gettext \
  && apk del gettext
 
 # ─── listen/index 調整 & 追加 /token 代理 ───────────────────────
-RUN sed -i \
-      -e 's|listen       80;|listen       8080 default_server;|g' \
-      -e 's|listen       443 ssl;|listen       8080 ssl;|g' \
-      -e 's|index  index.html;|try_files \$uri \$uri/ /index.html;|g' \
-    /etc/nginx/conf.d/default.conf \
- && printf '\n    # ===== proxy /token to metadata =====\n' \
-    'location = /token {\n' \
-    '  internal;\n' \
-    '  proxy_pass http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=$arg_audience;\n' \
-    '  proxy_set_header Metadata-Flavor "Google";\n' \
-    '  add_header Cache-Control no-store;\n' \
-    '}\n' \
-    >> /etc/nginx/conf.d/default.conf
+RUN cat << 'EOF' > /etc/nginx/conf.d/default.conf
+server {
+    listen       8080 default_server;
+    server_name  _;
+
+    root   /usr/share/nginx/html;
+    index  index.html;
+
+    # 靜態 + deep‑link
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    # 精確匹配 /token → 代理到 Metadata Server
+    location = /token {
+        internal;
+        proxy_pass http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=\$arg_audience;
+        proxy_set_header Metadata-Flavor "Google";
+        add_header Cache-Control no-store;
+    }
+}
+EOF
 
 EXPOSE 8080
 
